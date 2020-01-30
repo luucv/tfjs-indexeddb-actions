@@ -1,7 +1,8 @@
 module.exports = api => {
   const plugins = [
     'babel-plugin-add-module-exports',
-    'babel-plugin-transform-es2015-modules-umd'
+    'babel-plugin-transform-es2015-modules-umd',
+    "@babel/plugin-proposal-object-rest-spread",
   ];
 
   if (api.env() === 'karma')
@@ -21,7 +22,7 @@ module.exports = api => {
             ]
           }
         }
-      ]
+      ], "@babel/preset-react"
     ]
   };
 };
