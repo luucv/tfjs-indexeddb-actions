@@ -15,7 +15,7 @@ export default {
     this.db = await utils.openDatabase();
     const idbModel = await this._loadModel(path);
     const modelArtifacts = await this._loadWeights(idbModel.modelArtifacts);
-    const model = await this.convertModelArtifactsToModel(modelArtifacts)
+    const model = await this.convertModelArtifactsToModel(modelArtifacts);
     
     this.db.close();
     return model;
@@ -56,8 +56,8 @@ export default {
       
       this.db.close();
       throw new Error(
-        `Cannot find model with path '${Path}' ` +
-        `in IndexedDB.`);
+        `Cannot find model with path '${path}' ` +
+        'in IndexedDB.');
     }
 
     return model;
@@ -69,23 +69,4 @@ export default {
 
     return modelArtifacts;
   },
-
-  _getModelArtifactsInfoForJSON(modelArtifacts) {
-    if (modelArtifacts.modelTopology instanceof ArrayBuffer) {
-      throw new Error('Expected JSON model topology, received ArrayBuffer.');
-    }
-    return {
-      dateSaved: new Date(),
-      modelTopologyType: 'JSON',
-      modelTopologyBytes: modelArtifacts.modelTopology == null ?
-        0 :
-        utils.stringByteLength(JSON.stringify(modelArtifacts.modelTopology)),
-      weightSpecsBytes: modelArtifacts.weightSpecs == null ?
-        0 :
-        utils.stringByteLength(JSON.stringify(modelArtifacts.weightSpecs)),
-      weightDataBytes: modelArtifacts.weightData == null ?
-        0 :
-        modelArtifacts.weightData.byteLength,
-    };
-  }
 };

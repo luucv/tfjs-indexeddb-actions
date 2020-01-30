@@ -3,7 +3,9 @@ import { MODEL_STORE_NAME, INFO_STORE_NAME, WEIGHTS_STORE_NAME, DATABASE_VERSION
 export default {
   promisifyRequest(req) {
     return new Promise((resolve, reject) => {
+      // eslint-disable-next-line no-unused-vars
       req.onsuccess = e => resolve(req.result);
+      // eslint-disable-next-line no-unused-vars
       req.onerror = e => reject(req.error);
     });
   },
@@ -59,4 +61,4 @@ export default {
       deleteRequest.onerror = error => reject(error);
     });
   },
-}
+};

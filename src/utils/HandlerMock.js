@@ -5,4 +5,4 @@ export default class HandlerMock {
   async load() {
     return this.artifacts;
   }
-};
+}

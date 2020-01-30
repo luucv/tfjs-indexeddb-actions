@@ -81,8 +81,10 @@ export default {
       // If the put-model request fails, roll back the info entry as
       // well. If rollback fails, reject with error that triggered the
       // rollback initially.
-      rollback.array(this.db, WEIGHTS_STORE_NAME, chunckIds).catch();
-      rollback.single(this.db, INFO_STORE_NAME, modelPath).catch();
+      // eslint-disable-next-line no-unused-vars
+      rollback.array(this.db, WEIGHTS_STORE_NAME, chunckIds).catch((err) => {});
+      // eslint-disable-next-line no-unused-vars
+      rollback.single(this.db, INFO_STORE_NAME, modelPath).catch((err) => {});
       this.db.close();
       throw new Error(error);
     }
@@ -136,9 +138,6 @@ export default {
   },
 
   _getModelArtifactsInfoForJSON(modelArtifacts) {
-    if (modelArtifacts.modelTopology instanceof ArrayBuffer) {
-      throw new Error('Expected JSON model topology, received ArrayBuffer.');
-    }
     return {
       dateSaved: new Date(),
       modelTopologyType: 'JSON',
