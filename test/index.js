@@ -1,23 +1,26 @@
 import '@babel/polyfill'
-import idbService from '../src/index';
+
+import load from '../src/load';
+import store from '../src/store';
+import utils from '../src/utils/utils';
 import { artifacts } from './mocks/model';
 
 describe('tfjs-indexeddb-actions', async () => {
   beforeEach(async function() {
-    await idbService.deleteDatabase();
+    await utils.deleteDatabase();
   });
 
   afterEach(async function() {
-    await idbService.deleteDatabase();
+    await utils.deleteDatabase();
   });
 
   it('saves a model', async () => {
-    await idbService.storeAction(artifacts, 'foo');
+    await store.storeAction(artifacts, 'foo');
   });
 
   it('saves and loads model', async () => {
-    await idbService.storeAction(artifacts, 'foo');
-    const model = await idbService.loadAction('foo');
+    await store.storeAction(artifacts, 'foo');
+    const model = await load.loadAction('foo');
 
     expect(model.name).toEqual('sequential_1');
   });
