@@ -1,26 +1,21 @@
 import '@babel/polyfill';
+import * as tf from '@tensorflow/tfjs';
 
-import utils, { stringByteLength } from './utils';
-// import detectMocha from 'detect-mocha';
+import utils from './utils';
 import rollback from './rollback.js';
-
-const DATABASE_NAME = 'tensorflowjs';
-const DATABASE_VERSION = 1;
+import HandlerMock from './utils/HandlerMock';
 
 // Saving in chuncks allows to store bigger models.
 const MAX_CHUNCK_SIZE = 15000000; // 15mb
 
+const DATABASE_NAME = 'tensorflowjs';
+const DATABASE_VERSION = 1;
 const MODEL_STORE_NAME = 'models_store';
 const INFO_STORE_NAME = 'model_info_store';
 const WEIGHTS_STORE_NAME = 'model_weights';
 
-
-const handler = {
+export default {
   db: null,
-
-  loadAction(path) {
-
-  },
 
   // async modelToModelArtifacts(url, path) {
   //   t.db = await t._openDatabase();
@@ -34,30 +29,78 @@ const handler = {
   //   return res;
   // },
 
-  async storeAction(modelArtifacts, path) {
-    handler.db = await handler._openDatabase();
-    console.log('openeddb...')
+  async loadAction(path) {
+    this.db = await this._openDatabase();
+
+    const idbModel = await this._loadModel(path);
+    const modelArtifacts = await this._loadWeights(idbModel.modelArtifacts);
     
-    const modelArtifactsInfo = handler._getModelArtifactsInfoForJSON(modelArtifacts);
-    const hasWeights = modelArtifacts.weightData === null;
+    const handler = new HandlerMock(modelArtifacts);
+    const model = await tf.loadLayersModel(handler);
+    
+    this.db.close();
+    return model;
+  },
 
-    console.log('first...')
-    await handler._saveModelArtifactsInfo(path, modelArtifactsInfo);
+  async _loadWeights(artifacts) {
+    const modelArtifacts = artifacts;
 
-    if (hasWeights === true) {
-      console.log('second...')
-      modelArtifacts = handler._parseModelWeights(modelArtifacts, path);
-      await handler._saveModelWeights(modelArtifacts, path);
+    if (modelArtifacts.weightChunckKeys === 'undefined') {
+      const weightDataChuncked = await Promise.all(modelArtifacts.weightChunckKeys.map(async (chunckKey) => {
+        const weightTx = this.db.transaction(WEIGHTS_STORE_NAME, 'readwrite');
+        const weightsStore = weightTx.objectStore(WEIGHTS_STORE_NAME);
+        const weightDataChunck = await utils.promisifyRequest(weightsStore.get(chunckKey));
+        return weightDataChunck.weightData;
+      }));
+
+      const weightData = utils.concatenateArrayBuffers(weightDataChuncked);
+      modelArtifacts.weightData = weightData;
     }
 
-    await handler._saveModelArtifacts(path, modelArtifacts);
+    return artifacts;
+  },
 
+  async _loadModel(path) {
+    const modelTx = this.db.transaction(MODEL_STORE_NAME, 'readonly');
+    const modelStore = modelTx.objectStore(MODEL_STORE_NAME);
+    let model;
+
+    try {
+      model = await utils.promisifyRequest(modelStore.get(path));
+    } catch (error) {
+      return reject(error);
+    }
+
+    if (model == null) {
+      db.close();
+      return reject(new Error(
+        `Cannot find model with path '${Path}' ` +
+        `in IndexedDB.`));
+    }
+
+    return model;
+  },
+
+  async storeAction(modelArtifacts, path) {
+    this.db = await this._openDatabase();
+    
+    const modelArtifactsInfo = this._getModelArtifactsInfoForJSON(modelArtifacts);
+    const hasWeights = modelArtifacts.weightData === null;
+
+    await this._saveModelArtifactsInfo(path, modelArtifactsInfo);
+
+    if (hasWeights === true) {
+      modelArtifacts = this._parseModelWeights(modelArtifacts, path);
+      await this._saveModelWeights(modelArtifacts, path);
+    }
+
+    await this._saveModelArtifacts(path, modelArtifacts);
+    this.db.close();
     return modelArtifactsInfo;
   },
 
   async _saveModelArtifactsInfo(path, modelArtifactsInfo) {
-    console.log(handler.db);
-    const infoTx = handler.db.transaction(INFO_STORE_NAME, 'readwrite');
+    const infoTx = this.db.transaction(INFO_STORE_NAME, 'readwrite');
     const infoStore = infoTx.objectStore(INFO_STORE_NAME);
 
     try {
@@ -68,7 +111,7 @@ const handler = {
         })
       );
     } catch (error) {
-      handler.db.close();
+      this.db.close();
       throw new Error(error);
     }
   },
@@ -77,7 +120,7 @@ const handler = {
     // handle weight data === null
     try {
       await Promise.all(chunckIds.map(async (chunckId, i) => {
-        const weightTx = handler.db.transaction(WEIGHTS_STORE_NAME, 'readwrite');
+        const weightTx = this.db.transaction(WEIGHTS_STORE_NAME, 'readwrite');
         const weightsStore = weightTx.objectStore(WEIGHTS_STORE_NAME);
 
         const start = i * MAX_CHUNCK_SIZE;
@@ -102,9 +145,9 @@ const handler = {
       // If the put-model request fails, roll back the info entry as
       // well. If rollback fails, reject with error that triggered the
       // rollback initially.
-      rollback.array(handler.db, WEIGHTS_STORE_NAME, chunckIds).catch();
-      rollback.single(handler.db, INFO_STORE_NAME, modelPath).catch();
-      handler.db.close();
+      rollback.array(this.db, WEIGHTS_STORE_NAME, chunckIds).catch();
+      rollback.single(this.db, INFO_STORE_NAME, modelPath).catch();
+      this.db.close();
       throw new Error(error);
     }
 
@@ -114,9 +157,8 @@ const handler = {
   },
 
   async _saveModelArtifacts(modelPath, modelArtifacts) {
-    const modelTx = handler.db.transaction(MODEL_STORE_NAME, 'readwrite');
+    const modelTx = this.db.transaction(MODEL_STORE_NAME, 'readwrite');
     const modelStore = modelTx.objectStore(MODEL_STORE_NAME);
-    console.log('modelStore', modelStore);
     try {
       await utils.promisifyRequest(
         modelStore.put({
@@ -128,8 +170,8 @@ const handler = {
       // If the put-model request fails, roll back the info entry as
       // well. If rollback fails, reject with error that triggered the
       // rollback initially.
-      console.log('error', error);
-      await rollback.single(handler.db, INFO_STORE_NAME, handler.modelPath);
+      await rollback.single(this.db, INFO_STORE_NAME, this.modelPath);
+      this.db.close();
       throw new Error(error);
     }
   },
@@ -153,7 +195,7 @@ const handler = {
   _openDatabase() {
     return new Promise((resolve, reject) => {
       const openRequest = indexedDB.open(DATABASE_NAME, DATABASE_VERSION);
-      openRequest.onupgradeneeded = () => handler._setUpDatabase(openRequest);
+      openRequest.onupgradeneeded = () => this._setUpDatabase(openRequest);
       openRequest.onsuccess = (res) => resolve(res.target.result);
       openRequest.onerror = (err) => reject(err);
     });
@@ -173,6 +215,11 @@ const handler = {
       const deleteRequest = factory.deleteDatabase(DATABASE_NAME);
       deleteRequest.onsuccess = () => resolve();
       deleteRequest.onerror = error => reject(error);
+
+      // assumes DB gets deleted within 500ms, for test purposes;
+      // setTimeout(() => {
+      //   resolve();
+      // }, 500)
     });
   },
 
@@ -192,10 +239,10 @@ const handler = {
       modelTopologyType: 'JSON',
       modelTopologyBytes: modelArtifacts.modelTopology == null ?
         0 :
-        stringByteLength(JSON.stringify(modelArtifacts.modelTopology)),
+        utils.stringByteLength(JSON.stringify(modelArtifacts.modelTopology)),
       weightSpecsBytes: modelArtifacts.weightSpecs == null ?
         0 :
-        stringByteLength(JSON.stringify(modelArtifacts.weightSpecs)),
+        utils.stringByteLength(JSON.stringify(modelArtifacts.weightSpecs)),
       weightDataBytes: modelArtifacts.weightData == null ?
         0 :
         modelArtifacts.weightData.byteLength,
@@ -209,5 +256,3 @@ const handler = {
     db.createObjectStore(WEIGHTS_STORE_NAME, {keyPath: 'chunckId'});
   },
 };
-
-export default handler;
