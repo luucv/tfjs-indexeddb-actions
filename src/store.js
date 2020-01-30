@@ -1,18 +1,21 @@
 import '@babel/polyfill';
 import * as tf from '@tensorflow/tfjs';
-
+import { MODEL_STORE_NAME, INFO_STORE_NAME, WEIGHTS_STORE_NAME } from './globals';
 import utils from './utils/utils';
 import rollback from './utils/rollback.js';
 
 // Saving in chuncks allows to store bigger models.
 const MAX_CHUNCK_SIZE = 15000000; // 15mb
 
-const MODEL_STORE_NAME = 'models_store';
-const INFO_STORE_NAME = 'model_info_store';
-const WEIGHTS_STORE_NAME = 'model_weights';
-
 export default {
   db: null,
+
+  async convertUrlToArtifacts(url) {
+    const loadHandlers = tf.io.getLoadHandlers(url);
+    const modelArtifacts = await loadHandlers[0].load();
+
+    return modelArtifacts;
+  },
 
   async storeAction(modelArtifacts, path) {
     this.db = await utils.openDatabase();

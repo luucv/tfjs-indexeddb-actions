@@ -2,19 +2,17 @@
 import '@babel/polyfill';
 import * as tf from '@tensorflow/tfjs';
 
+import { MODEL_STORE_NAME, WEIGHTS_STORE_NAME } from './globals';
 import utils from './utils/utils';
 import HandlerMock from './utils/HandlerMock';
 
 // Saving in chuncks allows to store bigger models.
-const MODEL_STORE_NAME = 'models_store';
-const WEIGHTS_STORE_NAME = 'model_weights';
 
 export default {
   db: null,
 
   async loadAction(path) {
     this.db = await utils.openDatabase();
-
     const idbModel = await this._loadModel(path);
     const modelArtifacts = await this._loadWeights(idbModel.modelArtifacts);
     
@@ -46,19 +44,14 @@ export default {
   async _loadModel(path) {
     const modelTx = this.db.transaction(MODEL_STORE_NAME, 'readonly');
     const modelStore = modelTx.objectStore(MODEL_STORE_NAME);
-    let model;
-
-    try {
-      model = await utils.promisifyRequest(modelStore.get(path));
-    } catch (error) {
-      return reject(error);
-    }
+    const model = await utils.promisifyRequest(modelStore.get(path));
 
     if (model == null) {
-      db.close();
-      return reject(new Error(
+      
+      this.db.close();
+      throw new Error(
         `Cannot find model with path '${Path}' ` +
-        `in IndexedDB.`));
+        `in IndexedDB.`);
     }
 
     return model;

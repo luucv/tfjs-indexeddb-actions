@@ -1,8 +1,4 @@
-const DATABASE_NAME = 'tensorflowjs';
-const DATABASE_VERSION = 1;
-const MODEL_STORE_NAME = 'models_store';
-const INFO_STORE_NAME = 'model_info_store';
-const WEIGHTS_STORE_NAME = 'model_weights';
+import { MODEL_STORE_NAME, INFO_STORE_NAME, WEIGHTS_STORE_NAME, DATABASE_VERSION, DATABASE_NAME } from '../globals';
 
 export default {
   promisifyRequest(req) {
