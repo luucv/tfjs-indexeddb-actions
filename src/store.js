@@ -21,11 +21,11 @@ export default {
     this.db = await utils.openDatabase();
     
     const modelArtifactsInfo = this._getModelArtifactsInfoForJSON(modelArtifacts);
-    const hasWeights = modelArtifacts.weightData === null;
+    const hasWeights = modelArtifacts.weightData !== null;
     await this._saveModelArtifactsInfo(path, modelArtifactsInfo);
 
     if (hasWeights === true) {
-      modelArtifacts = this._parseModelWeights(modelArtifacts, path);
+      modelArtifacts = await this._parseModelWeights(modelArtifacts, path);
       await this._saveModelWeights(modelArtifacts, path);
     }
 
@@ -53,7 +53,7 @@ export default {
   },
 
   async _saveModelWeights(modelArtifacts, modelPath) {
-    // handle weight data === null
+    const chunckIds = modelArtifacts.weightChunckKeys;
     try {
       await Promise.all(chunckIds.map(async (chunckId, i) => {
         const weightTx = this.db.transaction(WEIGHTS_STORE_NAME, 'readwrite');

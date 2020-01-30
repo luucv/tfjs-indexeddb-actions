@@ -15,11 +15,17 @@ export default {
     this.db = await utils.openDatabase();
     const idbModel = await this._loadModel(path);
     const modelArtifacts = await this._loadWeights(idbModel.modelArtifacts);
-    
-    const handler = new HandlerMock(modelArtifacts);
-    const model = await tf.loadLayersModel(handler);
+    const model = await this.convertModelArtifactsToModel(modelArtifacts)
     
     this.db.close();
+    return model;
+  },
+
+  async convertModelArtifactsToModel(modelArtifacts) {
+    // make sure to have loaded custom layers...
+    const handler = new HandlerMock(modelArtifacts);
+    const model = await tf.loadLayersModel(handler);
+
     return model;
   },
 
