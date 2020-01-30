@@ -3,7 +3,8 @@ module.exports = {
     browser: true,
     commonjs: true,
     node: true,
-    jasmine: true
+    jasmine: true,
+    es6: true
   },
   plugins: [
     'import',
@@ -39,5 +40,8 @@ module.exports = {
     semi: [2, 'always'],
     'no-unused-vars': 1,
     'no-console': 0
+  },
+  settings: {
+    "polyfills": ["promises"]
   }
 };
