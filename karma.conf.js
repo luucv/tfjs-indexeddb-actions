@@ -12,7 +12,7 @@ const webpackConfig = merge([
 
 module.exports = config => {
   const src = './src/**/*.js';
-  const tests = './test/index.js';
+  const tests = './test/**/*.test.js';
 
   process.env.BABEL_ENV = 'karma';
 
