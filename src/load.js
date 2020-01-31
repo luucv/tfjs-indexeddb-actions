@@ -7,7 +7,6 @@ import utils from './utils/utils';
 import HandlerMock from './utils/HandlerMock';
 
 // Saving in chuncks allows to store bigger models.
-
 export default {
   db: null,
 
@@ -55,9 +54,11 @@ export default {
     if (model == null) {
       
       this.db.close();
-      throw new Error(
+      const error = new Error(
         `Cannot find model with path '${path}' ` +
         'in IndexedDB.');
+      error.code = 404;
+      throw error;
     }
 
     return model;
