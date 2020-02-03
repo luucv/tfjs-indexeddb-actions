@@ -1,8 +1,8 @@
 {
-  "name": "webpack-babel-karma-jasmine-starter",
-  "version": "0.0.1",
-  "description": "Babel Webpack Karma Jasmine boilerplate for building libraries",
-  "main": "src/index.js",
+  "name": "tfjs-indexeddb-helpers",
+  "version": "1.0.0",
+  "description": "Tensorflow.js IndexedDB helpers",
+  "main": "lib/lib.min.js",
   "scripts": {
     "test": "karma start --single-run --no-auto-watch",
     "test:watch": "karma start",
@@ -12,7 +12,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/alexnoz/webpack-babel-karma-jasmine-starter.git"
+    "url": "https://github.com/luucv/tfjs-indexeddb-actions"
   },
   "keywords": [
     "webpack",
@@ -23,7 +23,7 @@
     "starter",
     "boilerplate"
   ],
-  "author": "Alex Nozdriukhin <alex-nozzz@mail.ru>",
+  "author": "Luuc Verburgh",
   "license": "MIT",
   "devDependencies": {
     "@babel/cli": "7.1.0",
