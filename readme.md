@@ -1,15 +1,20 @@
-# Tensorflow.js IndexedDB Actions
-Allows users to store big models client-side in the indexedDB.
+# Tensorflow.js IndexedDB Helpers
+Allows users to store big tensorflow.js models on the client-side within the indexedDB.
 
 ## Installation
+```
+npm install --save tfjs-indexeddb-helpers
+```
 
 ## Usage 
 
 ### loadAndStoreLayersModel(url: String, id: String)
 To not make 2 requests to load a model, only use the loader in this package. Once the model gets loaded it will also get stored in the IndexedDB. 
 
-```python
-// optional: register custom layers
+```js
+import { loadAndStoreLayersModel } from 'tfjs-indexeddb-helpers';
+
+# optional: register custom layers
 tf.serialization.registerClass(MyCustomLayer);
 
 const model = await loadAndStoreLayersModel('https://foo.com/model.json', 'foo');
@@ -17,8 +22,10 @@ const model = await loadAndStoreLayersModel('https://foo.com/model.json', 'foo')
 
 ### loadFromIndexedDb(id: String)
 
-```python
-// optional: register custom layers
+```js
+import { loadFromIndexedDb } from 'tfjs-indexeddb-helpers';
+
+# optional: register custom layers
 tf.serialization.registerClass(MyCustomLayer);
 
 const model = await loadFromIndexedDb('foo');
