@@ -5,7 +5,7 @@ import utils from './utils/utils';
 import rollback from './utils/rollback.js';
 
 // Saving in chuncks allows to store bigger models.
-const MAX_CHUNCK_SIZE = 15000000; // 15mb
+const MAX_CHUNCK_SIZE = 50000000; // 15mb
 
 export default {
   db: null,
