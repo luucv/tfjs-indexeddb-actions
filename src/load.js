@@ -10,18 +10,23 @@ import HandlerMock from './utils/HandlerMock';
 export default {
   db: null,
 
-  async loadAction(path) {
+  async loadAction(path, customLayers) {
     this.db = await utils.openDatabase();
     const idbModel = await this._loadModel(path);
     const modelArtifacts = await this._loadWeights(idbModel.modelArtifacts);
-    const model = await this.convertModelArtifactsToModel(modelArtifacts);
+    const model = await this.convertModelArtifactsToModel(modelArtifacts, customLayers);
     
     this.db.close();
     return model;
   },
 
-  async convertModelArtifactsToModel(modelArtifacts) {
-    // make sure to have loaded custom layers...
+  async convertModelArtifactsToModel(modelArtifacts, customLayers) {
+    if (customLayers !== null) {
+      customLayers.map((customLayer) => {
+        tf.serialization.registerClass(customLayer);
+      });
+    }
+
     const handler = new HandlerMock(modelArtifacts);
     const model = await tf.loadLayersModel(handler);
 

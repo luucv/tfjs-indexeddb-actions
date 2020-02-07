@@ -15,7 +15,7 @@ describe('load', async () => {
   it('throws 404 when model does not found', async () => {
     let error, model = null;
     try {
-      model = await load.loadAction('foo');
+      model = await load.loadAction('foo', null);
     } catch(err) {
       error = err;
     }

@@ -14,10 +14,7 @@ To not make 2 requests to load a model, only use the loader in this package. Onc
 ```js
 import { loadAndStoreLayersModel } from 'tfjs-indexeddb-helpers';
 
-// optional: register custom layers
-tf.serialization.registerClass(MyCustomLayer);
-
-const model = await loadAndStoreLayersModel('https://foo.com/model.json', 'foo');
+const model = await loadAndStoreLayersModel('https://foo.com/model.json', 'foo', [MyCustomLayer1, MyCustomLayer2]);
 ```
 
 ### loadFromIndexedDb(id: String)
@@ -25,8 +22,5 @@ const model = await loadAndStoreLayersModel('https://foo.com/model.json', 'foo')
 ```js
 import { loadFromIndexedDb } from 'tfjs-indexeddb-helpers';
 
-// optional: register custom layers
-tf.serialization.registerClass(MyCustomLayer);
-
-const model = await loadFromIndexedDb('foo');
+const model = await loadFromIndexedDb('foo', [MyCustomLayer1, MyCustomLayer2]);
 ```

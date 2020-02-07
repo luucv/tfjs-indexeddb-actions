@@ -22,18 +22,15 @@ describe('functional', async () => {
 
   it('roundtrip small model', async () => {
     await store.storeAction(artifacts, 'foo');
-    const model = await load.loadAction('foo');
+    const model = await load.loadAction('foo', null);
 
     expect(model.name).toEqual('sequential_1');
   });
 
   it('roundtrip big model', async () => {
-    // load customlayers
-    tf.serialization.registerClass(Upsampling);
-
     const artifacts = await store.convertUrlToArtifacts(BIG_MODEL_URL);
     await store.storeAction(artifacts, 'foo');
-    const model = await load.loadAction('foo');
+    const model = await load.loadAction('foo', [Upsampling]);
 
     expect(model).not.toEqual(null);
     expect(model.layers.length).toEqual(372);
