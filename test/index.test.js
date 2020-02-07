@@ -21,16 +21,20 @@ describe('functional', async () => {
   });
 
   it('roundtrip small model', async () => {
+    tf.serialization.registerClass(Upsampling);
     await store.storeAction(artifacts, 'foo');
-    const model = await load.loadAction('foo', null);
+    const modelArtifacts = await load.loadAction('foo');
+    const model = await load.convertModelArtifactsToModel(modelArtifacts);
 
     expect(model.name).toEqual('sequential_1');
   });
 
   it('roundtrip big model', async () => {
+    tf.serialization.registerClass(Upsampling);
     const artifacts = await store.convertUrlToArtifacts(BIG_MODEL_URL);
     await store.storeAction(artifacts, 'foo');
-    const model = await load.loadAction('foo', [Upsampling]);
+    const modelArtifacts = await load.loadAction('foo');
+    const model = await load.convertModelArtifactsToModel(modelArtifacts);
 
     expect(model).not.toEqual(null);
     expect(model.layers.length).toEqual(372);
@@ -42,8 +46,10 @@ describe('functional', async () => {
   });
 
   it('loads from indexedDB', async () => {
-    const model = await indexedDbService.loadAndStoreLayersModel(IRIS_MODEL, 'iris');
-    const idbModel = await indexedDbService.loadFromIndexedDb('iris');
+    const modelArtifacts = await indexedDbService.loadAndStoreLayersModel(IRIS_MODEL, 'iris');
+    const idbModelArtifacts = await indexedDbService.loadFromIndexedDb('iris');
+    const model = await load.convertModelArtifactsToModel(modelArtifacts);
+    const idbModel = await load.convertModelArtifactsToModel(idbModelArtifacts);
 
     expect(idbModel).not.toEqual(null);
     expect(idbModel.name).toEqual(model.name);
