@@ -20,38 +20,38 @@ describe('functional', async () => {
     await utils.deleteDatabase();
   });
 
-  it('roundtrip small model', async () => {
-    tf.serialization.registerClass(Upsampling);
-    await store.storeAction(artifacts, 'foo');
-    const modelArtifacts = await load.loadAction('foo');
-    const model = await load.convertModelArtifactsToModel(modelArtifacts);
+  // it('roundtrip small model', async () => {
+  //   tf.serialization.registerClass(Upsampling);
+  //   await store.storeAction(artifacts, 'foo');
+  //   const modelArtifacts = await load.loadAction('foo');
+  //   const model = await load.convertModelArtifactsToModel(modelArtifacts);
 
-    expect(model.name).toEqual('sequential_1');
-  });
+  //   expect(model.name).toEqual('sequential_1');
+  // });
 
-  it('roundtrip big model', async () => {
-    tf.serialization.registerClass(Upsampling);
-    const artifacts = await store.convertUrlToArtifacts(BIG_MODEL_URL);
-    await store.storeAction(artifacts, 'foo');
-    const modelArtifacts = await load.loadAction('foo');
-    const model = await load.convertModelArtifactsToModel(modelArtifacts);
+  // it('roundtrip big model', async () => {
+  //   tf.serialization.registerClass(Upsampling);
+  //   const artifacts = await store.convertUrlToArtifacts(BIG_MODEL_URL);
+  //   await store.storeAction(artifacts, 'foo');
+  //   const modelArtifacts = await load.loadAction('foo');
+  //   const model = await load.convertModelArtifactsToModel(modelArtifacts);
 
-    expect(model).not.toEqual(null);
-    expect(model.layers.length).toEqual(372);
-  });
+  //   expect(model).not.toEqual(null);
+  //   expect(model.layers.length).toEqual(372);
+  // });
 
-  it('loads and stores a model', async () => {
-    const model = await indexedDbService.loadAndStoreLayersModel(IRIS_MODEL, 'iris');
-    expect(model).not.toEqual(null);
-  });
+  // it('loads and stores a model', async () => {
+  //   const model = await indexedDbService.loadAndStoreLayersModel(IRIS_MODEL, 'iris');
+  //   expect(model).not.toEqual(null);
+  // });
 
-  it('loads from indexedDB', async () => {
-    const modelArtifacts = await indexedDbService.loadAndStoreLayersModel(IRIS_MODEL, 'iris');
-    const idbModelArtifacts = await indexedDbService.loadFromIndexedDb('iris');
-    const model = await load.convertModelArtifactsToModel(modelArtifacts);
-    const idbModel = await load.convertModelArtifactsToModel(idbModelArtifacts);
+  // it('loads from indexedDB', async () => {
+  //   const modelArtifacts = await indexedDbService.loadAndStoreLayersModel(IRIS_MODEL, 'iris');
+  //   const idbModelArtifacts = await indexedDbService.loadFromIndexedDb('iris');
+  //   const model = await load.convertModelArtifactsToModel(modelArtifacts);
+  //   const idbModel = await load.convertModelArtifactsToModel(idbModelArtifacts);
 
-    expect(idbModel).not.toEqual(null);
-    expect(idbModel.name).toEqual(model.name);
-  });
+  //   expect(idbModel).not.toEqual(null);
+  //   expect(idbModel.name).toEqual(model.name);
+  // });
 });

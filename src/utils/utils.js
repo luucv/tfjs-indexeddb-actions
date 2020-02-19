@@ -6,7 +6,10 @@ export default {
       // eslint-disable-next-line no-unused-vars
       req.onsuccess = e => resolve(req.result);
       // eslint-disable-next-line no-unused-vars
-      req.onerror = e => reject(req.error);
+      req.onerror = e => {
+        console.log('error') 
+        reject(req.error)
+      };
     });
   },
 
@@ -39,10 +42,10 @@ export default {
   },
 
   _setUpDatabase(openRequest) {
+    console.log(INFO_STORE_NAME);
     const db = openRequest.result;
-    db.createObjectStore(MODEL_STORE_NAME, {keyPath: 'modelPath'});
-    db.createObjectStore(INFO_STORE_NAME, {keyPath: 'modelPath'});
-    db.createObjectStore(WEIGHTS_STORE_NAME, {keyPath: 'chunckId'});
+    db.createObjectStore(INFO_STORE_NAME, {keyPath: 'modelId'});
+    db.createObjectStore(WEIGHTS_STORE_NAME, {keyPath: 'modelId'});
   },
 
   deleteDatabase() {
@@ -61,4 +64,19 @@ export default {
       deleteRequest.onerror = error => reject(error);
     });
   },
+
+  arrayBufferToBlob(buffer, type) {
+    return new Blob([buffer], {type: type});
+  },
+
+  blobToArrayBuffer(blob) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.addEventListener('loadend', (e) => {
+        resolve(reader.result);
+      });
+      reader.addEventListener('error', reject);
+      reader.readAsArrayBuffer(blob);
+    });
+  }
 };

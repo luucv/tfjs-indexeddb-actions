@@ -11,12 +11,38 @@ export default {
   db: null,
 
   async loadAction(path) {
-    this.db = await utils.openDatabase();
+    // this.db = await utils.openDatabase();
     const idbModel = await this._loadModel(path);
     const modelArtifacts = await this._loadWeights(idbModel.modelArtifacts);
     
     this.db.close();
     return modelArtifacts;
+  },
+
+  async getModelWeights(key) {
+    const db = await utils.openDatabase();
+    const modelTx = db.transaction(WEIGHTS_STORE_NAME, 'readonly');
+    const modelStore = modelTx.objectStore(WEIGHTS_STORE_NAME);
+    const modelWeights = await utils.promisifyRequest(modelStore.get(key));
+    db.close();
+    console.log('yala', modelWeights.blob);
+    window.location.href = window.URL.createObjectURL(modelWeights.blob);
+
+    // window.location.href = modelWeights.blob;
+    return modelWeights;
+  },
+
+  async getModelInfo(key) {
+    const db = await utils.openDatabase();
+    const modelTx = db.transaction(WEIGHTS_STORE_NAME, 'readonly');
+    const modelStore = modelTx.objectStore(WEIGHTS_STORE_NAME);
+    const modelWeights = await utils.promisifyRequest(modelStore.get(key));
+    db.close();
+    console.log('yala', modelWeights.blob);
+    window.location.href = window.URL.createObjectURL(modelWeights.blob);
+
+    // window.location.href = modelWeights.blob;
+    return modelWeights;
   },
 
   async convertModelArtifactsToModel(modelArtifacts) {
@@ -68,4 +94,12 @@ export default {
 
     return modelArtifacts;
   },
+
+  async _loadFromFiles() {
+    const jsonUpload = document.getElementById('json-upload');
+    const weightsUpload = document.getElementById('weights-upload');
+
+    const model = await tf.loadLayersModel(
+      tf.io.browserFiles([jsonUpload.files[0], weightsUpload.files[0]]));
+    }
 };
