@@ -22,7 +22,7 @@ export default {
   
     const temp = new Uint8Array(totalByteLength);
     let offset = 0;
-    buffers.forEach((buffer) => {
+    buffers.map((buffer) => {
       temp.set(new Uint8Array(buffer), offset);
       offset += buffer.byteLength;
     });
