@@ -48,11 +48,9 @@ describe('functional', async () => {
     expect(idbModel).not.toEqual(null);
     expect(idbModel.name).toEqual(model.name);
 
-    const pred = await model.predict(testingData);
-    const idbPred = await idbModel.predict(testingData);
+    const pred = await model.predict(testingData).array();
+    const idbPred = await idbModel.predict(testingData).array();
 
-    pred.print();
-    idbPred.print();
     expect(pred).toEqual(idbPred);
   });
 });
