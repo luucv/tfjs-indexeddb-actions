@@ -12,7 +12,7 @@ import iris from './mocks/iris';
 const BIG_MODEL_URL = 'http://localhost:5000/static/models/dextr/model.json';
 const IRIS_MODEL = 'https://storage.googleapis.com/tfjs-models/tfjs/iris_v1/model.json';
 
-describe('functional', async () => {
+describe('inference', async () => {
   beforeEach(async function() {
     await utils.deleteDatabase();
   });
@@ -35,22 +35,37 @@ describe('functional', async () => {
     pred.dispose();
     testingData.dispose();
   });
-  it('does inference with indexedDB IrisModel', async () => {
+
+  it('does same inference between idbModel and original', async () => {
     const testingData = tf.tensor2d(iris.map(item => [
       item.sepal_length, item.sepal_width, item.petal_length, item.petal_width,
-    ]))
+    ]));
 
     await indexedDbService.loadAndStoreLayersModel(IRIS_MODEL, 'iris');
     const idbModelArtifacts = await indexedDbService.loadFromIndexedDb('iris');
     const idbModel = await load.convertModelArtifactsToModel(idbModelArtifacts);
+    
     const model = await tf.loadLayersModel(IRIS_MODEL);
-
-    expect(idbModel).not.toEqual(null);
-    expect(idbModel.name).toEqual(model.name);
 
     const pred = await model.predict(testingData).array();
     const idbPred = await idbModel.predict(testingData).array();
 
-    expect(pred).toEqual(idbPred);
+    expect(idbPred).toEqual(pred);
+  });
+
+  it('does same inference between original and converted by us', async () => {
+    const testingData = tf.tensor2d(iris.map(item => [
+      item.sepal_length, item.sepal_width, item.petal_length, item.petal_width,
+    ]));
+
+    const modelArtifacts = await indexedDbService.loadAndStoreLayersModel(IRIS_MODEL, 'iris');
+    const model = await load.convertModelArtifactsToModel(modelArtifacts);
+    
+    const origModel = await tf.loadLayersModel(IRIS_MODEL);
+
+    const origPred = await origModel.predict(testingData).array();
+    const pred = await model.predict(testingData).array();
+
+    expect(pred).toEqual(origPred);
   });
 });
