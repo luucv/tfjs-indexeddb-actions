@@ -14,7 +14,7 @@ export default {
     this.db = await utils.openDatabase();
     const idbModel = await this._loadModel(path);
     const modelArtifacts = await this._loadWeights(idbModel.modelArtifacts);
-    
+
     this.db.close();
     return modelArtifacts;
   },
@@ -29,7 +29,7 @@ export default {
   async _loadWeights(artifacts) {
     const modelArtifacts = artifacts;
 
-    if (modelArtifacts.weightChunckKeys === 'undefined') {
+    if (modelArtifacts.weightChunckKeys !== undefined) {
       const weightDataChuncked = await Promise.all(modelArtifacts.weightChunckKeys.map(async (chunckKey) => {
         const weightTx = this.db.transaction(WEIGHTS_STORE_NAME, 'readwrite');
         const weightsStore = weightTx.objectStore(WEIGHTS_STORE_NAME);
@@ -41,7 +41,7 @@ export default {
       modelArtifacts.weightData = weightData;
     }
 
-    return artifacts;
+    return modelArtifacts;
   },
 
   async _loadModel(path) {
