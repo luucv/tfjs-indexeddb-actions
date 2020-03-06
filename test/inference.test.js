@@ -3,13 +3,9 @@ import * as tf from '@tensorflow/tfjs';
 
 import indexedDbService from '../src/index';
 import load from '../src/load';
-import store from '../src/store';
 import utils from '../src/utils/utils';
-import { artifacts } from './mocks/model';
-import Upsampling from './mocks/Upsampling';
 import iris from './mocks/iris';
 
-const BIG_MODEL_URL = 'http://localhost:5000/static/models/dextr/model.json';
 const IRIS_MODEL = 'https://storage.googleapis.com/tfjs-models/tfjs/iris_v1/model.json';
 
 describe('inference', async () => {
@@ -19,7 +15,7 @@ describe('inference', async () => {
 
   afterEach(async function() {
     await utils.deleteDatabase();
-  });
+  }); 
 
   it('does inference with original IrisModel', async () => {
     const testingData = tf.tensor2d(iris.map(item => [
@@ -28,8 +24,6 @@ describe('inference', async () => {
 
     const model = await tf.loadLayersModel(IRIS_MODEL);
     const pred = model.predict(testingData)
-
-    pred.print();
 
     model.dispose();
     pred.dispose();
