@@ -4,15 +4,15 @@ import load from './load';
 import store from './store';
 
 export default {
-  async loadAndStoreLayersModel(url, name, customLayers = null) {
+  async loadAndStoreLayersModel(url, name) {
     const artifacts = await store.convertUrlToArtifacts(url);
     await store.storeAction(artifacts, name);
-    const model = await load.loadAction(name, customLayers);
+    const model = await load.loadAction(name);
 
     return model;
   },
-  async loadFromIndexedDb(name, customLayers = null) {
-    const model = await load.loadAction(name, customLayers);
+  async loadFromIndexedDb(name) {
+    const model = await load.loadAction(name);
 
     return model;
   },
