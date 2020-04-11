@@ -1,6 +1,5 @@
 import '@babel/polyfill'
 import * as tf from '@tensorflow/tfjs';
-import npyjs from 'npyjs';
 
 import indexedDbService from '../src/index';
 import load from '../src/load';
