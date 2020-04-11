@@ -11,10 +11,12 @@ const IRIS_MODEL = 'https://storage.googleapis.com/tfjs-models/tfjs/iris_v1/mode
 describe('inference', async () => {
   beforeEach(async function() {
     await utils.deleteDatabase();
+    await tf.disposeVariables();
   });
 
   afterEach(async function() {
     await utils.deleteDatabase();
+    await tf.disposeVariables();
   }); 
 
   it('does inference with original IrisModel', async () => {
