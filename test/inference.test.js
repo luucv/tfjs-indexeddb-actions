@@ -4,6 +4,7 @@ import * as tf from '@tensorflow/tfjs';
 import indexedDbService from '../src/index';
 import load from '../src/load';
 import utils from '../src/utils/utils';
+import store from '../src/store';
 import iris from './mocks/data/iris';
 import Upsampling from './mocks/Upsampling';
 
@@ -71,6 +72,8 @@ describe('inference', async () => {
 
   describe('DEXTR MODEL', async () => {
     beforeEach(async function() {
+      jasmine.DEFAULT_TIMEOUT_INTERVAL = 15000;
+
       await utils.deleteDatabase();
       await tf.disposeVariables();
     });
@@ -87,7 +90,24 @@ describe('inference', async () => {
 
       tf.serialization.registerClass(Upsampling);
       const model = await tf.loadLayersModel(DEXTR_MODEL);
-      const pred = model.predict(inputTensor)
+      await model.predict(inputTensor)
+    });
+
+    it('does inference with indexedDB model', async () => {
+      // Test can be a bit buggy, if fails retry with some refreshs.
+      const inputRes = await fetch('./base/test/mocks/data/dextrInput.json');
+      const inputJson = await inputRes.json();
+      const inputTensor = await tf.tensor(inputJson.input);
+      
+      const artifacts = await store.convertUrlToArtifacts(DEXTR_MODEL);
+      await store.storeAction(artifacts, 'dextr');
+      
+      tf.serialization.registerClass(Upsampling);
+      const idbModelArtifacts = await indexedDbService.loadFromIndexedDb('dextr');
+      const idbModel = await load.convertModelArtifactsToModel(idbModelArtifacts);
+
+      const pred = await idbModel.predict(inputTensor);
+      expect(pred.shape).toEqual([1, 512, 512, 1]);
     });
   });
 });
