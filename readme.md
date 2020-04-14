@@ -10,12 +10,15 @@ npm install --save tfjs-indexeddb-helpers
 
 ```js
 import * as tf from '@tensorflow/tfjs'
-import 'tfjs-indexeddb-helpers'
+import { chunkedDBRouter } from 'tfjs-indexeddb-helpers'
+
+tf.io.registerLoadRouter(chunkedDBRouter)
+tf.io.registerSaveRouter(chunkedDBRouter)
 
 const model = await tf.loadLayersModel('https://foo.com/model.json')
-model.save('chunked-indexeddb://foo')
+model.save('chunkeddb://foo')
 
-const loadedModel = await tf.loadLayersModel('chunked-indexeddb://foo')
+const loadedModel = await tf.loadLayersModel('chunkeddb://foo')
 ```
 
 <!-- ### loadAndStoreLayersModel(url: String, id: String)
