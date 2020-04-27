@@ -50,7 +50,7 @@ export default {
     const model = await utils.promisifyRequest(modelStore.get(path));
 
     if (model == null) {
-      
+
       this.db.close();
       const error = new Error(
         `Cannot find model with path '${path}' ` +
