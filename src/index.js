@@ -1,19 +1,9 @@
 import '@babel/polyfill';
+// import * as tf from '@tensorflow/tfjs';
+// import { io as tfio } from '@tensorflow/tfjs-core';
+// tf.io.registerLoadRouter(chunkeddb.chunkedDBRouter);
+// tf.io.registerSaveRouter(chunkeddb.chunkedDBRouter);
 
-import load from './load';
-import store from './store';
+import { chunkedDBRouter, ChunkedDBManager } from './chunkeddb';
 
-export default {
-  async loadAndStoreLayersModel(url, name, customLayers = null) {
-    const artifacts = await store.convertUrlToArtifacts(url);
-    await store.storeAction(artifacts, name);
-    const model = await load.loadAction(name, customLayers);
-
-    return model;
-  },
-  async loadFromIndexedDb(name, customLayers = null) {
-    const model = await load.loadAction(name, customLayers);
-
-    return model;
-  },
-};
+export { chunkedDBRouter, ChunkedDBManager };
