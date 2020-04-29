@@ -19,7 +19,7 @@ exports.loadJS = ({ include, exclude, options } = {}) => ({
   module: {
     rules: [
       {
-        test: /\.(ts|js)?$/,
+        test: /\.js$/,
 
         include,
         exclude,
