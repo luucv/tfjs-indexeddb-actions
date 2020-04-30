@@ -19,8 +19,8 @@ export default {
 
   async storeAction(modelArtifacts, path) {
     this.db = await utils.openDatabase();
-    
-    const modelArtifactsInfo = this._getModelArtifactsInfoForJSON(modelArtifacts);
+
+    const modelArtifactsInfo = tf.io.getModelArtifactsInfoForJSON(modelArtifacts);
     const hasWeights = modelArtifacts.weightData !== null;
     await this._saveModelArtifactsInfo(path, modelArtifactsInfo);
 
@@ -60,7 +60,7 @@ export default {
         const weightsStore = weightTx.objectStore(WEIGHTS_STORE_NAME);
 
         const start = i * MAX_CHUNCK_SIZE;
-        const end = start + MAX_CHUNCK_SIZE < modelArtifacts.weightData.byteLength ? 
+        const end = start + MAX_CHUNCK_SIZE < modelArtifacts.weightData.byteLength ?
           start + MAX_CHUNCK_SIZE :
           modelArtifacts.weightData.byteLength;
 

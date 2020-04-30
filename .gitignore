@@ -29,6 +29,7 @@ dist/
 build/
 coverage/
 lib/
+*.tgz
 
 ### SublimeText ###
 # cache files for sublime text

@@ -37,7 +37,8 @@ module.exports = config => {
     // list of files / patterns to load in the browser
     files: [
       src,
-      tests
+      tests,
+      { pattern: './test/**/*.json', watched: true, included: false, served: true },
     ],
 
     // list of files to exclude

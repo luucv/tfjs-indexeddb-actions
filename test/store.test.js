@@ -11,6 +11,7 @@ const BIG_MODEL_URL = 'http://localhost:5000/static/models/dextr/model.json';
 
 describe('store', async () => {
   beforeEach(async function() {
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 15000;
     await utils.deleteDatabase();
   });
 
